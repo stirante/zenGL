@@ -17,6 +17,8 @@ public class World implements GLComponent {
     private int[] vbos;
     private int size;
 
+//    private ArrayList<Vector3f> test = new ArrayList<>();
+
     private Texture grass;
     private Texture sea;
 
@@ -42,12 +44,6 @@ public class World implements GLComponent {
     }
 
     public void initGL() {
-        //broken lighting
-        float[] lightPosition = {-2.19f, 1.36f, 11.45f, 1f};
-        glEnable(GL_LIGHTING);
-        glEnable(GL_LIGHT0);
-        glLightf(GL_LIGHT0, GL_AMBIENT, 1f);
-        glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
         grass = new Texture("res/grass.jpg");
         sea = new Texture("res/sea.jpg");
@@ -67,6 +63,9 @@ public class World implements GLComponent {
             for (int v = 0; v < strip.get(s).size() - 2; v++) {
                 if ((v & 1) != 0) {
                     Vector3f normal = getNormal(new Vector3f(strip.get(s).get(v).x, strip.get(s).get(v).y, strip.get(s).get(v).z), new Vector3f(strip.get(s).get(v + 2).x, strip.get(s).get(v + 2).y, strip.get(s).get(v + 2).z), new Vector3f(strip.get(s).get(v + 1).x, strip.get(s).get(v + 1).y, strip.get(s).get(v + 1).z));
+
+//                    test.add(new Vector3f(strip.get(s).get(v).x, strip.get(s).get(v).y, strip.get(s).get(v).z));
+//                    test.add(new Vector3f(strip.get(s).get(v).x + normal.x, strip.get(s).get(v).y + normal.y, strip.get(s).get(v).z + normal.z));
 
                     put(data, strip.get(s).get(v).x, strip.get(s).get(v).y, strip.get(s).get(v).z);
                     put(data, strip.get(s).get(v).x, strip.get(s).get(v).z);
@@ -150,25 +149,34 @@ public class World implements GLComponent {
 //        }
 //        glColor3f(1f, 1f, 1f);
         sea.bind();
+        float nx = 0;
+        float ny = 1;
+        float nz = 0;
         glBegin(GL_QUADS);
         glTexCoord2f(0f, 0f);
-        glNormal3f(0, 1, 0);
+        glNormal3f(nx, ny, nz);
         glVertex3f(0f, 1f, 0f);
 
         glTexCoord2f(0f, 200f);
-        glNormal3f(0, 1, 0);
+        glNormal3f(nx, ny, nz);
         glVertex3f(0f, 1f, -200f);
 
         glTexCoord2f(200f, 200f);
-        glNormal3f(0, 1, 0);
+        glNormal3f(nx, ny, nz);
         glVertex3f(200f, 1f, -200f);
 
         glTexCoord2f(200f, 0f);
-        glNormal3f(0, 1, 0);
+        glNormal3f(nx, ny, nz);
         glVertex3f(200f, 1f, 0f);
 
         glEnd();
         sea.unbind();
+//        for (int i = 0; i < test.size(); i += 2) {
+//            glBegin(GL_LINE_LOOP);
+//            test.get(i).gl();
+//            test.get(i + 1).gl();
+//            glEnd();
+//        }
     }
 
     @Override
@@ -205,6 +213,19 @@ public class World implements GLComponent {
         buffer.add(v.x);
         buffer.add(v.y);
         buffer.add(v.z);
+    }
+
+    public float getBottomAt(float x, float z) {
+        if (x < 0 || z < 0) return 0;
+        float y1 = noise[(int) x][(int) z];
+        float y2 = noise[(int) x + 1][(int) z];
+        float y3 = noise[(int) x][(int) z + 1];
+        float y4 = noise[(int) x + 1][(int) z + 1];
+        float xDiff = x - (int) x;
+        float zDiff = z - (int) z;
+        float y12 = y1 + ((y2 - y1) * xDiff);
+        float y34 = y3 + ((y4 - y3) * xDiff);
+        return y12 + ((y34 - y12) * zDiff);
     }
 
 }

@@ -86,6 +86,13 @@ public class Window {
         glfwShowWindow(handle);
     }
 
+    public void lockMouse() {
+        glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+
+    public void unlockMouse() {
+        glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
 
     private void onMouseAction(int button, int action, int mods) {
         MouseListener.MouseButton mouseButton = MouseListener.MouseButton.getById(button);
@@ -112,39 +119,27 @@ public class Window {
         initGL();
 
         while (!glfwWindowShouldClose(handle)) {
+            renderGL();
+            glfwSwapBuffers(handle);
+            glfwPollEvents();
             while (lastUpdate == -1L || System.currentTimeMillis() - lastUpdate >= DELTA) {
                 update();
                 if (lastUpdate == -1L) lastUpdate = System.currentTimeMillis();
                 else lastUpdate += DELTA;
             }
-            for (GLComponent component : screen.getNewComponents()) {
-                component.initGL();
-            }
-            screen.getNewComponents().clear();
-            for (GLComponent component : screen.getOldComponents()) {
-                component.destroyGL();
-            }
-            screen.getOldComponents().clear();
-            renderGL();
-            glfwSwapBuffers(handle);
-            glfwPollEvents();
         }
     }
 
     private void update() {
         screen.update();
-        for (GLComponent component : screen.getComponents()) {
-            component.update();
-        }
+        screen.getComponents().update();
     }
 
     private void renderGL() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glColor3f(1f, 1f, 1f);
         screen.renderGL();
-        for (GLComponent component : screen.getComponents()) {
-            component.renderGL();
-        }
+        screen.getComponents().renderGL();
 
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
@@ -158,6 +153,7 @@ public class Window {
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_LIGHTING);
 
+        glColor3f(1f, 1f, 1f);
         screen.render2D(width, height);
 
         glEnable(GL_DEPTH_TEST);
@@ -216,5 +212,9 @@ public class Window {
 
     public FontRenderer getFontRenderer() {
         return fontRenderer;
+    }
+
+    public void close() {
+        glfwSetWindowShouldClose(handle, true);
     }
 }

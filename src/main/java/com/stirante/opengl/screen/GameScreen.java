@@ -1,10 +1,12 @@
 package com.stirante.opengl.screen;
 
 import com.stirante.opengl.component.Camera;
-import com.stirante.opengl.component.Image;
 import com.stirante.opengl.component.Text;
 import com.stirante.opengl.component.World;
-import org.lwjgl.opengl.GL11;
+import com.stirante.opengl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class GameScreen extends Screen {
 
@@ -18,7 +20,7 @@ public class GameScreen extends Screen {
     private long updateTime = System.currentTimeMillis();
     private int fps = 0;
     private int ups = 0;
-    private Image image;
+    private boolean mouseLocked = true;
 
     public GameScreen(Window window) {
         super(window);
@@ -28,8 +30,8 @@ public class GameScreen extends Screen {
                 0.1f,
                 1000.0f);
         world = new World();
-        addComponent(camera);
-        addComponent(world);
+        getComponents().addComponent(camera);
+        getComponents().addComponent(world);
         addMouseListener(camera);
     }
 
@@ -37,10 +39,14 @@ public class GameScreen extends Screen {
     public void initGL() {
         fpsText = getWindow().getFontRenderer().getText("FPS: ", 5, 5, 16);
         upsText = getWindow().getFontRenderer().getText("UPS: ", 5, 21, 16);
-        image = new Image("res/grass.jpg");
-        image.initGL();
-        image.setHeight(100);
-        image.setWidth(100);
+        //broken lighting
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT1);
+        glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.8f);
+        float[] lightPosition = {0, 1, 0, 1f};
+        float[] lightDiffuse = {1f, 1f, 1f, 0f};
+        glLightfv(GL_LIGHT1, GL_DIFFUSE, lightDiffuse);
+        glLightfv(GL_LIGHT1, GL_POSITION, lightPosition);
     }
 
     @Override
@@ -55,12 +61,10 @@ public class GameScreen extends Screen {
 
     @Override
     public void render2D(int width, int height) {
-        GL11.glColor3f(1f, 1f, 1.0f);
         fpsText.renderGL();
         upsText.renderGL();
         getWindow().getFontRenderer().drawText(String.valueOf(fps), fpsText.getWidth(), 5, 16);
         getWindow().getFontRenderer().drawText(String.valueOf(ups), upsText.getWidth(), 21, 16);
-        image.renderGL();
     }
 
     @Override
@@ -76,15 +80,30 @@ public class GameScreen extends Screen {
             updates = 0;
             updateTime = System.currentTimeMillis();
         }
+        if (Keyboard.isKeyDown(GLFW.GLFW_KEY_ESCAPE)) getWindow().close();
+        if (Keyboard.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)) {
+            if (mouseLocked) {
+                camera.setMouseLocked(false);
+                getWindow().unlockMouse();
+                mouseLocked = !mouseLocked;
+            }
+            else {
+                camera.setMouseLocked(true);
+                getWindow().lockMouse();
+                mouseLocked = !mouseLocked;
+            }
+        }
+        camera.setY(world.getBottomAt(camera.getX(), camera.getZ()) + 1f);
     }
 
     @Override
     public void onAttach() {
         camera.setAspect((float) getWindow().getWidth() / (float) getWindow().getHeight());
+        getWindow().lockMouse();
     }
 
     @Override
     public void onDetach() {
-
+        getWindow().unlockMouse();
     }
 }

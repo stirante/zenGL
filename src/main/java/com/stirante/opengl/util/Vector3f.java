@@ -1,5 +1,9 @@
 package com.stirante.opengl.util;
 
+import org.lwjgl.opengl.GL11;
+
+import static org.lwjgl.opengl.GL11.glVertex3f;
+
 public class Vector3f {
 
     private static final long serialVersionUID = 1L;
@@ -268,4 +272,9 @@ public class Vector3f {
 
         return false;
     }
+
+    public void gl() {
+        glVertex3f(x, y, z);
+    }
+
 }

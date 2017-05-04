@@ -1,6 +1,7 @@
 package com.stirante.opengl.screen;
 
 import com.stirante.opengl.component.GLComponent;
+import com.stirante.opengl.component.GLComponentGroup;
 import com.stirante.opengl.input.MouseListener;
 
 import java.util.ArrayList;
@@ -13,9 +14,7 @@ public abstract class Screen implements GLComponent {
         this.window = window;
     }
 
-    private ArrayList<GLComponent> components = new ArrayList<>();
-    private ArrayList<GLComponent> toInit = new ArrayList<>();
-    private ArrayList<GLComponent> toRemove = new ArrayList<>();
+    private GLComponentGroup components = new GLComponentGroup();
     private ArrayList<MouseListener> mouseListeners = new ArrayList<>();
 
     public abstract void onAttach();
@@ -24,20 +23,12 @@ public abstract class Screen implements GLComponent {
 
     public abstract void render2D(int width, int height);
 
-    public ArrayList<GLComponent> getComponents() {
+    public GLComponentGroup getComponents() {
         return components;
     }
 
     public ArrayList<MouseListener> getMouseListeners() {
         return mouseListeners;
-    }
-
-    ArrayList<GLComponent> getNewComponents() {
-        return toInit;
-    }
-
-    ArrayList<GLComponent> getOldComponents() {
-        return toRemove;
     }
 
     public void addMouseListener(MouseListener mouseListener) {
@@ -46,16 +37,6 @@ public abstract class Screen implements GLComponent {
 
     public void removeMouseListener(MouseListener mouseListener) {
         mouseListeners.remove(mouseListener);
-    }
-
-    public void addComponent(GLComponent component) {
-        toInit.add(component);
-        components.add(component);
-    }
-
-    public void removeComponent(GLComponent component) {
-        toRemove.add(component);
-        components.remove(component);
     }
 
     public Window getWindow() {

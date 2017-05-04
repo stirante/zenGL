@@ -15,9 +15,20 @@ public class Camera implements GLComponent, MouseListener {
     private float rx, ry, rz;
     private float fov, aspect, near, far;
 
+    public boolean isFlying() {
+        return flying;
+    }
+
+    public void setFlying(boolean flying) {
+        this.flying = flying;
+    }
+
+    private boolean flying = false;
+    private boolean mouseLocked = true;
+
     public Camera(float fov, float aspect, float near, float far) {
         x = z = 0;
-        y = -20;
+        y = 20;
         rx = 0;
         ry = 0;
         rz = 0;
@@ -30,6 +41,12 @@ public class Camera implements GLComponent, MouseListener {
 
     public void setAspect(float aspect) {
         this.aspect = aspect;
+        initProjection();
+    }
+
+    public void setFOV(float fov) {
+        this.fov = fov;
+        initProjection();
     }
 
     private void initProjection() {
@@ -44,18 +61,20 @@ public class Camera implements GLComponent, MouseListener {
         glRotatef(rx, 1, 0, 0);
         glRotatef(ry, 0, 1, 0);
         glRotatef(rz, 0, 0, 1);
-        glTranslatef(x, y, z);
+        glTranslatef(-x, -y, z);
     }
 
-    private float speed1 = 1f;
-    private float speed2 = 0.5f;
+    private float speed1 = 0.5f;
+    private float speed2 = 0.2f;
 
     public void move(float locSpeed, float dir) {
         double rad = Math.toRadians(ry + 90 * dir);
         z += locSpeed * Math.sin(rad);
-        x += locSpeed * Math.cos(rad);
-        if (dir != 0) {
-            y += locSpeed * Math.sin(Math.toRadians(rx));
+        x -= locSpeed * Math.cos(rad);
+        if (flying) {
+            if (dir != 0) {
+                y -= locSpeed * Math.sin(Math.toRadians(rx));
+            }
         }
     }
 
@@ -81,6 +100,8 @@ public class Camera implements GLComponent, MouseListener {
 
     public void rotateX(float amt) {
         rx += amt;
+        if (rx < -60) rx = -60;
+        if (rx > 60) rx = 60;
     }
 
     private static void gluPerspective(float fov, float aspect, float near, float far) {
@@ -136,29 +157,30 @@ public class Camera implements GLComponent, MouseListener {
         if (Keyboard.isKeyDown(GLFW_KEY_D)) {
             moveRight();
         }
-        if (Keyboard.isKeyDown(GLFW_KEY_Q)) {
-            rotateY(-0.75f);
-        }
-        if (Keyboard.isKeyDown(GLFW_KEY_E)) {
-            rotateY(0.75f);
-        }
-        if (Keyboard.isKeyDown(GLFW_KEY_R)) {
-            rotateX(-0.75f);
-        }
-        if (Keyboard.isKeyDown(GLFW_KEY_F)) {
-            rotateX(0.75f);
-        }
+//        if (Keyboard.isKeyDown(GLFW_KEY_Q)) {
+//            rotateY(-0.75f);
+//        }
+//        if (Keyboard.isKeyDown(GLFW_KEY_E)) {
+//            rotateY(0.75f);
+//        }
+//        if (Keyboard.isKeyDown(GLFW_KEY_R)) {
+//            rotateX(-0.75f);
+//        }
+//        if (Keyboard.isKeyDown(GLFW_KEY_F)) {
+//            rotateX(0.75f);
+//        }
     }
 
-    private boolean pressed = false;
-    private double lastX = 0;
-    private double lastY = 0;
+    private double lastX = -1;
+    private double lastY = -1;
 
     @Override
     public void onMouseMove(double x, double y) {
-        if (pressed) {
-            rotateX((float) (y - lastY));
-            rotateY((float) (x - lastX));
+        if (mouseLocked) {
+            if (lastX != -1 || lastY != -1) {
+                rotateX((float) (y - lastY));
+                rotateY((float) (x - lastX));
+            }
         }
         lastX = x;
         lastY = y;
@@ -166,11 +188,41 @@ public class Camera implements GLComponent, MouseListener {
 
     @Override
     public void onMousePress(MouseButton button) {
-        if (button == MouseButton.LEFT) pressed = true;
     }
 
     @Override
     public void onMouseRelease(MouseButton button) {
-        if (button == MouseButton.LEFT) pressed = false;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public float getZ() {
+        return z;
+    }
+
+    public void setZ(float z) {
+        this.z = z;
+    }
+
+    public boolean isMouseLocked() {
+        return mouseLocked;
+    }
+
+    public void setMouseLocked(boolean mouseLocked) {
+        this.mouseLocked = mouseLocked;
     }
 }
