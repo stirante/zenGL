@@ -19,10 +19,11 @@ public class World implements GLComponent {
 
 //    private ArrayList<Vector3f> test = new ArrayList<>();
 
-    private Texture grass;
-    private Texture sea;
+//    private Texture grass;
+//    private Texture sea;
 
     public World() {
+        //generowanie mapy 200x200
         SimplexNoise sn = new SimplexNoise(100, 0.2, System.currentTimeMillis());
         double xStart = 0;
         double XEnd = 200;
@@ -45,8 +46,9 @@ public class World implements GLComponent {
 
     public void initGL() {
 
-        grass = new Texture("res/grass.jpg");
-        sea = new Texture("res/sea.jpg");
+//        grass = new Texture("res/grass.jpg");
+//        sea = new Texture("res/sea.jpg");
+        //wygenerowanie pasków mapy. Wcześniej renderowałem używając TRIANLGE_STRIP i tak zostało
         ArrayList<ArrayList<Vector3f>> strip = new ArrayList<>();
         for (int x = 0; x < noise.length - 1; x++) {
             ArrayList<Vector3f> e = new ArrayList<>();
@@ -56,7 +58,9 @@ public class World implements GLComponent {
                 e.add(new Vector3f(x + 1, noise[x + 1][z], -z));
             }
         }
+        //tablica id bufferów
         vbos = new int[strip.size()];
+        //dla każdego paska robimy vertex buffer trójkątów
         for (int s = 0; s < strip.size(); s++) {
             ArrayList<Float> data = new ArrayList<>();
             size = 0;
@@ -118,7 +122,9 @@ public class World implements GLComponent {
 
     @Override
     public void renderGL() {
-        grass.bind();
+//        grass.bind();
+        //renderowanie mapy
+        glColor3f(0.54509807f, 0.7647059f, 0.2901961f);
         for (int vbo : vbos) {
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glVertexPointer(3, GL_FLOAT, 8 * 4, 0);
@@ -134,21 +140,12 @@ public class World implements GLComponent {
             glDisableClientState(GL_VERTEX_ARRAY);
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        grass.unbind();
-//        glColor3f(1f, 0f, 0f);
-//        final float y = 0f;
-//        for (int i = 0; i < 200; i++) {
-//            glBegin(GL_LINE_LOOP);
-//            glVertex3f(i, y, 0f);
-//            glVertex3f(i, y, -200f);
-//            glEnd();
-//            glBegin(GL_LINE_LOOP);
-//            glVertex3f(0f, y, -i);
-//            glVertex3f(200f, y, -i);
-//            glEnd();
-//        }
-//        glColor3f(1f, 1f, 1f);
-        sea.bind();
+        glColor3f(1f, 1f, 1f);
+//        grass.unbind();
+//        sea.bind();
+        //renderowanie wody
+        glColor4f(0.22745098f, 0.65882355f, 1f, 0.8f);
+        glEnable(GL_BLEND);
         float nx = 0;
         float ny = 1;
         float nz = 0;
@@ -170,7 +167,9 @@ public class World implements GLComponent {
         glVertex3f(200f, 1f, 0f);
 
         glEnd();
-        sea.unbind();
+        glDisable(GL_BLEND);
+        glColor4f(1f, 1f, 1f, 1f);
+//        sea.unbind();
 //        for (int i = 0; i < test.size(); i += 2) {
 //            glBegin(GL_LINE_LOOP);
 //            test.get(i).gl();
@@ -181,8 +180,8 @@ public class World implements GLComponent {
 
     @Override
     public void destroyGL() {
-        sea.destroy();
-        grass.destroy();
+//        sea.destroy();
+//        grass.destroy();
     }
 
     @Override

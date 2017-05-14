@@ -21,6 +21,7 @@ import static org.lwjgl.system.MemoryUtil.*;
 public class Window {
     private long handle;
 
+    //update logiki co 50ms
     private static final long DELTA = 50;
     private FontRenderer fontRenderer;
     private long lastUpdate = -1L;
@@ -45,7 +46,7 @@ public class Window {
     }
 
     private void init() {
-        //redirect errors to System.err
+        //przekieruj bledy do System.err
         GLFWErrorCallback.createPrint(System.err).set();
 
         if (!glfwInit())
@@ -59,12 +60,12 @@ public class Window {
         if (handle == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 
-        //some callbacks
+        //dodaj eventy na mysz i klawiature
         glfwSetKeyCallback(handle, new Keyboard());
         glfwSetCursorPosCallback(handle, (l, v, v1) -> onMouseMoved(v, v1));
         glfwSetMouseButtonCallback(handle, (l, i, i1, i2) -> onMouseAction(i, i1, i2));
 
-        //center window
+        //wysrodkuj okienko
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1);
             IntBuffer pHeight = stack.mallocInt(1);
@@ -86,16 +87,23 @@ public class Window {
         glfwShowWindow(handle);
     }
 
+    /**
+     * Blokuje i ukrywa mysz
+     */
     public void lockMouse() {
         glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 
+    /**
+     * Odblokowuje i pokazuje mysz
+     */
     public void unlockMouse() {
         glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 
     private void onMouseAction(int button, int action, int mods) {
         MouseListener.MouseButton mouseButton = MouseListener.MouseButton.getById(button);
+        //przekierowanie eventów do listenerów
         if (action == GLFW_PRESS) {
             for (MouseListener mouseListener : screen.getMouseListeners()) {
                 mouseListener.onMousePress(mouseButton);
@@ -108,13 +116,16 @@ public class Window {
     }
 
     private void onMouseMoved(double x, double y) {
+        //przekierowanie eventów do listenerów
         for (MouseListener mouseListener : screen.getMouseListeners()) {
             mouseListener.onMouseMove(x, y);
         }
     }
 
     private void loop() {
+        //stwórz context opengl
         GL.createCapabilities();
+        //jeśli się udało, to możemy sprawdzić wersję
         System.out.println("OpenGL: " + glGetString(GL_VERSION));
         initGL();
 
@@ -136,32 +147,41 @@ public class Window {
     }
 
     private void renderGL() {
+        //czyszczenie bufferów
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glColor3f(1f, 1f, 1f);
+        //renderowanie obiektów
         screen.renderGL();
         screen.getComponents().renderGL();
 
+        //renderowanie 2D
+        //zmienić macierz projekcji na ortho
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
         glOrtho(0.0f, width, height, 0.0f, -1f, 1f);
 
+        //wyczyscic macierz model widok
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         glLoadIdentity();
 
+        //wylaczyc glebosc i oswietlenie
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_LIGHTING);
 
         glColor3f(1f, 1f, 1f);
         screen.render2D(width, height);
 
+        //wlaczyc znowu oswietlenie i glebokosc
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_LIGHTING);
 
+        //przywrocic macierz projekcji
         glMatrixMode(GL_PROJECTION);
         glPopMatrix();
 
+        //przywrocic macierz model widok
         glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
     }
@@ -169,14 +189,14 @@ public class Window {
     private void initGL() {
         glEnable(GL11.GL_TEXTURE_2D);
         glShadeModel(GL11.GL_SMOOTH);
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0.0f, 0.609375f, 0.7254902f, 1f);
         glClearDepth(1.0);
         glEnable(GL11.GL_DEPTH_TEST);
         glDepthFunc(GL11.GL_LEQUAL);
 
         GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);
 
-        //antialiasing?
+        //antialiasing? (nie udalo mi sie tego wlaczyc dobrze)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_POINT_SMOOTH);
         glEnable(GL_LINE_SMOOTH);

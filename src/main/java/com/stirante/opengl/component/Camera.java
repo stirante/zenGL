@@ -157,12 +157,12 @@ public class Camera implements GLComponent, MouseListener {
         if (Keyboard.isKeyDown(GLFW_KEY_D)) {
             moveRight();
         }
-//        if (Keyboard.isKeyDown(GLFW_KEY_Q)) {
-//            rotateY(-0.75f);
-//        }
-//        if (Keyboard.isKeyDown(GLFW_KEY_E)) {
-//            rotateY(0.75f);
-//        }
+        if (Keyboard.isKeyDown(GLFW_KEY_Q)) {
+            rotateY(-1.5f);
+        }
+        if (Keyboard.isKeyDown(GLFW_KEY_E)) {
+            rotateY(1.5f);
+        }
 //        if (Keyboard.isKeyDown(GLFW_KEY_R)) {
 //            rotateX(-0.75f);
 //        }
