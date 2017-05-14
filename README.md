@@ -1,3 +1,5 @@
+![Alt text](/screenshots/screenshot1.png?raw=true "Screenshot")
+
 # Obiektowość?
 Całość podzieliłem na obiekty. Window odpowiada za stworzenie okna. Przyjmuje on obiekty Screen. Każdy Screen może w sobie przechowywać obiekty GLComponent, posiadające podstawowe metody renderowania oraz aktualizowania. 
 
