@@ -14,6 +14,7 @@ public class Camera implements GLComponent, MouseListener {
     private float x, y, z;
     private float rx, ry, rz;
     private float fov, aspect, near, far;
+    private World world;
 
     public boolean isFlying() {
         return flying;
@@ -28,7 +29,7 @@ public class Camera implements GLComponent, MouseListener {
 
     public Camera(float fov, float aspect, float near, float far) {
         x = z = 0;
-        y = 20;
+        y = 0;
         rx = 0;
         ry = 0;
         rz = 0;
@@ -37,6 +38,11 @@ public class Camera implements GLComponent, MouseListener {
         this.aspect = aspect;
         this.near = near;
         this.far = far;
+    }
+
+    public void setWorld(World world) {
+        this.world = world;
+        world.onPlayerMove(getX(), getY(), getZ());
     }
 
     public void setAspect(float aspect) {
@@ -68,6 +74,7 @@ public class Camera implements GLComponent, MouseListener {
     private float speed2 = 0.2f;
 
     public void move(float locSpeed, float dir) {
+        world.onPlayerMove(getX(), getY(), getZ());
         double rad = Math.toRadians(ry + 90 * dir);
         z += locSpeed * Math.sin(rad);
         x -= locSpeed * Math.cos(rad);
