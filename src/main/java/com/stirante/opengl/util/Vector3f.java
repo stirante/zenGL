@@ -1,14 +1,14 @@
 package com.stirante.opengl.util;
 
-import org.lwjgl.opengl.GL11;
-
 import static org.lwjgl.opengl.GL11.glVertex3f;
 
 public class Vector3f {
 
     private static final long serialVersionUID = 1L;
 
-    public float x, y, z;
+    public float x;
+    public Float y;
+    public Float z;
 
     /**
      * Constructor for Vector3f.
@@ -24,10 +24,14 @@ public class Vector3f {
         set(x, y, z);
     }
 
+    public Vector3f(double x, double y, double z) {
+        set((float) x, (float) y, (float) z);
+    }
+
     /* (non-Javadoc)
      * @see org.lwjgl.util.vector.WritableVector2f#set(float, float)
      */
-    public void set(float x, float y) {
+    public void set(float x, Float y) {
         this.x = x;
         this.y = y;
     }
@@ -35,7 +39,7 @@ public class Vector3f {
     /* (non-Javadoc)
      * @see org.lwjgl.util.vector.WritableVector3f#set(float, float, float)
      */
-    public void set(float x, float y, float z) {
+    public void set(float x, Float y, Float z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -44,7 +48,7 @@ public class Vector3f {
     /**
      * @return the length squared of the vector
      */
-    public float lengthSquared() {
+    public double lengthSquared() {
         return x * x + y * y + z * z;
     }
 
@@ -55,7 +59,7 @@ public class Vector3f {
      * @param y the translation in y
      * @return this
      */
-    public Vector3f translate(float x, float y, float z) {
+    public Vector3f translate(float x, Float y, float z) {
         this.x += x;
         this.y += y;
         this.z += z;
@@ -181,7 +185,7 @@ public class Vector3f {
      * @param right The RHS vector
      * @return left dot right
      */
-    public static float dot(Vector3f left, Vector3f right) {
+    public static double dot(Vector3f left, Vector3f right) {
         return left.x * right.x + left.y * right.y + left.z * right.z;
     }
 
@@ -193,7 +197,7 @@ public class Vector3f {
      * @return the angle between the two vectors, in radians
      */
     public static float angle(Vector3f a, Vector3f b) {
-        float dls = dot(a, b) / (a.length() * b.length());
+        double dls = dot(a, b) / (a.length() * b.length());
         if (dls < -1f)
             dls = -1f;
         else if (dls > 1.0f)
@@ -224,7 +228,7 @@ public class Vector3f {
     /**
      * @return y
      */
-    public final float getY() {
+    public final Float getY() {
         return y;
     }
 
@@ -242,7 +246,7 @@ public class Vector3f {
      *
      * @param y
      */
-    public final void setY(float y) {
+    public final void setY(Float y) {
         this.y = y;
     }
 
@@ -251,14 +255,14 @@ public class Vector3f {
      *
      * @param z
      */
-    public void setZ(float z) {
+    public void setZ(Float z) {
         this.z = z;
     }
 
     /* (Overrides)
      * @see org.lwjgl.vector.ReadableVector3f#getZ()
      */
-    public float getZ() {
+    public Float getZ() {
         return z;
     }
 

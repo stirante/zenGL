@@ -2,8 +2,8 @@ package com.stirante.opengl.component;
 
 import com.stirante.opengl.input.Keyboard;
 import com.stirante.opengl.util.PolyUtils;
-import com.stirante.opengl.util.Texture;
 import com.stirante.opengl.util.SimplexNoise;
+import com.stirante.opengl.util.Texture;
 import com.stirante.opengl.util.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
@@ -24,8 +24,7 @@ public class World implements GLComponent {
     private int width;
     private int height;
 
-//    private Texture grass;
-//    private Texture sea;
+    private Texture grass;
 
     public World(Camera camera, int width, int height) {
         this.camera = camera;
@@ -50,12 +49,8 @@ public class World implements GLComponent {
 
     public void initGL() {
         water.initGL();
-//        grass = new Texture("res/grass.jpg");
-//        sea = new Texture("res/sea.jpg");
-        //wygenerowanie pasków mapy. Wcześniej renderowałem używając TRIANLGE_STRIP i tak zostało
+        grass = new Texture("res/grass.jpg");
         ArrayList<ArrayList<Vector3f>> strip = PolyUtils.toStrips(noise);
-        //tablica id bufferów
-        //dla każdego paska robimy vertex buffer trójkątów
         size = 0;
         ArrayList<Float> data = new ArrayList<>();
         for (int s = 0; s < strip.size(); s++) {
@@ -83,12 +78,12 @@ public class World implements GLComponent {
     }
 
     public void onPlayerMove(float x, float y, float z) {
+        float bot = getBottomAt(x, z) + 1;
+        if (camera.getY() < bot) camera.ground(bot);
         if (y <= 1 && y >= 0)
-            water.setPointLevel((int) x, (int) z, -0.8f);
+            water.setPointLevel((int) x, (int) z, -0.9f);
         else if (y < 0)
-            water.setPointLevel((int) x, (int) z, -0.8f * (-(y + 1) / 10f));
-        //iluzja kolizji (ustawiam caly czas Y kamery na najnizszy punkt na mapie)
-        camera.setY(getBottomAt(camera.getX(), camera.getZ()) + 1f);
+            water.setPointLevel((int) x, (int) z, (-0.9f) * (-(y + 1) / 10f));
         if (camera.getZ() > getHeight()-1)  camera.setZ(getHeight() - 1);
         if (camera.getZ() < 1)  camera.setZ(1);
         if (camera.getX() > getWidth()-1)  camera.setX(getWidth() - 1);
@@ -97,12 +92,16 @@ public class World implements GLComponent {
 
     @Override
     public void renderGL() {
-//        grass.bind();
+        grass.bind();
         //renderowanie mapy
+//        if (camera.getY() > 0)
+//            glColor3f(0.54509807f, 0.7647059f, 0.2901961f);
+//        else
+//            glColor3f(0.24509807f, 0.4647059f, 0.2901961f);
         if (camera.getY() > 0)
-            glColor3f(0.54509807f, 0.7647059f, 0.2901961f);
+            glColor3f(1, 1, 1);
         else
-            glColor3f(0.24509807f, 0.4647059f, 0.2901961f);
+            glColor3f(0.3f, 0.4f, 1);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glVertexPointer(3, GL_FLOAT, 8 * 4, 0);
         glTexCoordPointer(2, GL_FLOAT, 8 * 4, 4 * 3);
@@ -117,26 +116,19 @@ public class World implements GLComponent {
         glDisableClientState(GL_VERTEX_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glColor3f(1f, 1f, 1f);
-//        grass.unbind();
-//        for (int i = 0; i < test.size(); i += 2) {
-//            glBegin(GL_LINE_LOOP);
-//            test.get(i).gl();
-//            test.get(i + 1).gl();
-//            glEnd();
-//        }
+        grass.unbind();
         water.renderGL();
     }
 
     @Override
     public void destroyGL() {
-//        sea.destroy();
-//        grass.destroy();
+        grass.destroy();
         water.destroyGL();
     }
 
     @Override
     public void update() {
-        if (Keyboard.isKeyDown(GLFW.GLFW_KEY_SPACE)) water.setPointLevel((int)camera.getX(), (int) camera.getZ(), 10);
+        if (Keyboard.isKeyDown(GLFW.GLFW_KEY_C)) water.setPointLevel((int)camera.getX(), (int) camera.getZ(), 10);
         water.update();
     }
 

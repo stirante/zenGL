@@ -55,8 +55,9 @@ public class Window {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
-        handle = glfwCreateWindow(width, height, "OpenGL", NULL, NULL);
+        handle = glfwCreateWindow(width, height, "OpenGL", NULL, NULL);//glfwGetPrimaryMonitor()
         if (handle == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 

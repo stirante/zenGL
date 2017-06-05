@@ -1,9 +1,6 @@
 package com.stirante.opengl.screen;
 
-import com.stirante.opengl.component.Camera;
-import com.stirante.opengl.component.Image;
-import com.stirante.opengl.component.Text;
-import com.stirante.opengl.component.World;
+import com.stirante.opengl.component.*;
 import com.stirante.opengl.input.Keyboard;
 import org.lwjgl.glfw.GLFW;
 
@@ -22,6 +19,7 @@ public class GameScreen extends Screen {
     private int fps = 0;
     private int ups = 0;
     private boolean mouseLocked = true;
+    private CollisionTest test;
 
     public GameScreen(Window window) {
         super(window);
@@ -34,6 +32,7 @@ public class GameScreen extends Screen {
         getComponents().addComponent(camera);
         getComponents().addComponent(world);
         addMouseListener(camera);
+        test = new CollisionTest(camera);
     }
 
     @Override
@@ -50,6 +49,7 @@ public class GameScreen extends Screen {
 
     @Override
     public void renderGL() {
+        test.renderGL();
         renders++;
         if (System.currentTimeMillis() - renderTime >= 1000) {
             fps = renders;
@@ -64,6 +64,14 @@ public class GameScreen extends Screen {
         upsText.renderGL();
         getWindow().getFontRenderer().drawText(String.valueOf(fps), fpsText.getWidth(), 5, 16);
         getWindow().getFontRenderer().drawText(String.valueOf(ups), upsText.getWidth(), 21, 16);
+//        glBegin(GL_QUADS);
+//        float cx = getWindow().getWidth() / 2f;
+//        float cy = getWindow().getHeight() / 2f;
+//        glVertex2f(cx-10, cy-10);
+//        glVertex2f(cx+10, cy-10);
+//        glVertex2f(cx+10, cy+10);
+//        glVertex2f(cx-10, cy+10);
+//        glEnd();
     }
 
     @Override
@@ -86,8 +94,7 @@ public class GameScreen extends Screen {
                 camera.setMouseLocked(false);
                 getWindow().unlockMouse();
                 mouseLocked = !mouseLocked;
-            }
-            else {
+            } else {
                 camera.setMouseLocked(true);
                 getWindow().lockMouse();
                 mouseLocked = !mouseLocked;

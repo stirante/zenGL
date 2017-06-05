@@ -2,6 +2,8 @@ package com.stirante.opengl.component;
 
 import com.stirante.opengl.input.Keyboard;
 import com.stirante.opengl.input.MouseListener;
+import com.stirante.opengl.util.Ray;
+import com.stirante.opengl.util.Vector3f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -14,7 +16,9 @@ public class Camera implements GLComponent, MouseListener {
     private float x, y, z;
     private float rx, ry, rz;
     private float fov, aspect, near, far;
+    private float velX, velY, velZ;
     private World world;
+    private boolean onGround = true;
 
     public boolean isFlying() {
         return flying;
@@ -28,16 +32,18 @@ public class Camera implements GLComponent, MouseListener {
     private boolean mouseLocked = true;
 
     public Camera(float fov, float aspect, float near, float far) {
-        x = z = 0;
-        y = 0;
-        rx = 0;
-        ry = 0;
-        rz = 0;
-
+        x = z = y = velY = velX = velZ = rx = ry = rz = 0;
         this.fov = fov;
         this.aspect = aspect;
         this.near = near;
         this.far = far;
+    }
+
+    public Ray getRay() {
+        return new Ray(new Vector3f(x, y, -z), new Vector3f(
+                Math.cos(Math.toRadians(rz + 90)) * -Math.sin(Math.toRadians(-ry + 90)) * far,
+                Math.cos(Math.toRadians(rz + 90)) * far,
+                Math.cos(Math.toRadians(rz + 90)) * -Math.sin(Math.toRadians(-ry + 90)) * far).normalise());
     }
 
     public void setWorld(World world) {
@@ -70,17 +76,17 @@ public class Camera implements GLComponent, MouseListener {
         glTranslatef(-x, -y, z);
     }
 
-    private float speed1 = 0.5f;
-    private float speed2 = 0.2f;
+    private float speed1 = 0.3f;
+    private float speed2 = 0.1f;
 
     public void move(float locSpeed, float dir) {
         world.onPlayerMove(getX(), getY(), getZ());
         double rad = Math.toRadians(ry + 90 * dir);
-        z += locSpeed * Math.sin(rad);
-        x -= locSpeed * Math.cos(rad);
+        velZ += locSpeed * Math.sin(rad);
+        velX -= locSpeed * Math.cos(rad);
         if (flying) {
             if (dir != 0) {
-                y -= locSpeed * Math.sin(Math.toRadians(rx));
+                velY -= locSpeed * Math.sin(Math.toRadians(rx));
             }
         }
     }
@@ -170,12 +176,33 @@ public class Camera implements GLComponent, MouseListener {
         if (Keyboard.isKeyDown(GLFW_KEY_E)) {
             rotateY(1.5f);
         }
+        if (Keyboard.isKeyDown(GLFW_KEY_SPACE) && onGround) {
+            velY += 2;
+            onGround = false;
+        }
 //        if (Keyboard.isKeyDown(GLFW_KEY_R)) {
 //            rotateX(-0.75f);
 //        }
 //        if (Keyboard.isKeyDown(GLFW_KEY_F)) {
 //            rotateX(0.75f);
 //        }
+        float lastX = x;
+        float lastY = y;
+        float lastZ = z;
+
+        if (Math.abs(velX) < 0.01) velX = 0;
+        if (Math.abs(velY) < 0.01) velY = 0;
+        if (Math.abs(velZ) < 0.01) velZ = 0;
+
+        x += velX;
+        y += velY;
+        z += velZ;
+        if (x != lastX || lastY != y || z != lastZ)
+            world.onPlayerMove(getX(), getY(), getZ());
+        velY -= 0.3f;
+        velX /= 3;
+        velY /= 1.7;
+        velZ /= 3;
     }
 
     private double lastX = -1;
@@ -231,5 +258,10 @@ public class Camera implements GLComponent, MouseListener {
 
     public void setMouseLocked(boolean mouseLocked) {
         this.mouseLocked = mouseLocked;
+    }
+
+    public void ground(float y) {
+        setY(y);
+        onGround = true;
     }
 }

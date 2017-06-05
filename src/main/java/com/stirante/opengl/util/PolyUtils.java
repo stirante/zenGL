@@ -67,7 +67,7 @@ public class PolyUtils {
     }
 
     private static void put(ArrayList<Float> buffer, float... floats) {
-        for (float f : floats) {
+        for (Float f : floats) {
             buffer.add(f);
         }
     }
