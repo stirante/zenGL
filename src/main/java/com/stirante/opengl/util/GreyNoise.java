@@ -1,7 +1,6 @@
 package com.stirante.opengl.util;
 
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
-import org.lwjgl.opengl.GL12;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -10,37 +9,27 @@ import java.io.IOException;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.*;
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL12.GL_BGRA;
+import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 
-public class Texture {
-    private int width, height;
+public class GreyNoise {
+    private int width;
+    private int height;
+    private int[] pixels;
     private int texture;
 
-    public Texture(String path) {
-        texture = load(path);
-    }
-
-    public Texture(BufferedImage img) {
-        texture = load(img);
-    }
-
-    private int load(String path) {
-        try {
-            BufferedImage image = ImageIO.read(new FileInputStream(path));
-            return load(image);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private int load(BufferedImage image) {
-        int[] pixels;
-        width = image.getWidth();
-        height = image.getHeight();
+    public GreyNoise(int width, int height) {
+        this.width = width;
+        this.height = height;
         pixels = new int[width * height];
-        image.getRGB(0, 0, width, height, pixels, 0, width);
+        for (int i = 0; i < width * height; i++) {
+            int channel = (int) (Math.random() * 255);
+            pixels[i] = 0xff000000 + (channel << 16) + (channel << 8) + channel;
+        }
+        this.texture = load();
+    }
 
+    private int load() {
         int result = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, result);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);

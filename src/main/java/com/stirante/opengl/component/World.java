@@ -1,10 +1,7 @@
 package com.stirante.opengl.component;
 
 import com.stirante.opengl.input.Keyboard;
-import com.stirante.opengl.util.PolyUtils;
-import com.stirante.opengl.util.SimplexNoise;
-import com.stirante.opengl.util.Texture;
-import com.stirante.opengl.util.Vector3f;
+import com.stirante.opengl.util.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 
@@ -12,6 +9,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL15.*;
 
 public class World implements GLComponent {
@@ -26,7 +24,13 @@ public class World implements GLComponent {
 
     private Texture grass;
 
+//    private Shader shader;
+//    private GreyNoise noiseTex;
+//
+//    private long startTime;
+
     public World(Camera camera, int width, int height) {
+//        startTime = System.currentTimeMillis();
         this.camera = camera;
         this.width = width;
         this.height = height;
@@ -48,16 +52,23 @@ public class World implements GLComponent {
     }
 
     public void initGL() {
+//        noiseTex = new GreyNoise(2048, 2048);
+//        shader = new Shader("res/shaders/test");
+//        shader.setUniform1i("tex", 0);
+//        shader.setUniform1i("noise", 1);
+//        glActiveTexture(GL_TEXTURE1);
+//        noiseTex.bind();
+//        glActiveTexture(GL_TEXTURE0);
         water.initGL();
         grass = new Texture("res/grass.jpg");
         ArrayList<ArrayList<Vector3f>> strip = PolyUtils.toStrips(noise);
         size = 0;
         ArrayList<Float> data = new ArrayList<>();
-        for (int s = 0; s < strip.size(); s++) {
-            for (int v = 0; v < strip.get(s).size() - 2; v++) {
-                Vector3f v0 = strip.get(s).get(v);
-                Vector3f v1 = strip.get(s).get(v + 1);
-                Vector3f v2 = strip.get(s).get(v + 2);
+        for (ArrayList<Vector3f> aStrip : strip) {
+            for (int v = 0; v < aStrip.size() - 2; v++) {
+                Vector3f v0 = aStrip.get(v);
+                Vector3f v1 = aStrip.get(v + 1);
+                Vector3f v2 = aStrip.get(v + 2);
                 if ((v & 1) != 0) {
                     PolyUtils.poly(data, v0, v2, v1);
                 } else {
@@ -84,20 +95,21 @@ public class World implements GLComponent {
             water.setPointLevel((int) x, (int) z, -0.9f);
         else if (y < 0)
             water.setPointLevel((int) x, (int) z, (-0.9f) * (-(y + 1) / 10f));
-        if (camera.getZ() > getHeight()-1)  camera.setZ(getHeight() - 1);
-        if (camera.getZ() < 1)  camera.setZ(1);
-        if (camera.getX() > getWidth()-1)  camera.setX(getWidth() - 1);
-        if (camera.getX() < 1)  camera.setX(1);
+        if (camera.getZ() > getHeight() - 1) camera.setZ(getHeight() - 1);
+        if (camera.getZ() < 1) camera.setZ(1);
+        if (camera.getX() > getWidth() - 1) camera.setX(getWidth() - 1);
+        if (camera.getX() < 1) camera.setX(1);
     }
 
     @Override
     public void renderGL() {
+//        float value = (float) (System.currentTimeMillis() - startTime) / 1000f;
+//        shader.setUniform1f("globalTime", value);
+//        glActiveTexture(GL_TEXTURE1);
+//        noiseTex.bind();
+//        glActiveTexture(GL_TEXTURE0);
+//        shader.enable();
         grass.bind();
-        //renderowanie mapy
-//        if (camera.getY() > 0)
-//            glColor3f(0.54509807f, 0.7647059f, 0.2901961f);
-//        else
-//            glColor3f(0.24509807f, 0.4647059f, 0.2901961f);
         if (camera.getY() > 0)
             glColor3f(1, 1, 1);
         else
@@ -118,6 +130,7 @@ public class World implements GLComponent {
         glColor3f(1f, 1f, 1f);
         grass.unbind();
         water.renderGL();
+//        shader.disable();
     }
 
     @Override
@@ -128,7 +141,7 @@ public class World implements GLComponent {
 
     @Override
     public void update() {
-        if (Keyboard.isKeyDown(GLFW.GLFW_KEY_C)) water.setPointLevel((int)camera.getX(), (int) camera.getZ(), 10);
+        if (Keyboard.isKeyDown(GLFW.GLFW_KEY_C)) water.setPointLevel((int) camera.getX(), (int) camera.getZ(), 10);
         water.update();
     }
 

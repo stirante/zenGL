@@ -19,6 +19,7 @@ public class Camera implements GLComponent, MouseListener {
     private float velX, velY, velZ;
     private World world;
     private boolean onGround = true;
+    private final Skybox skybox;
 
     public boolean isFlying() {
         return flying;
@@ -37,6 +38,7 @@ public class Camera implements GLComponent, MouseListener {
         this.aspect = aspect;
         this.near = near;
         this.far = far;
+        skybox = new Skybox();
     }
 
     public Ray getRay() {
@@ -66,14 +68,6 @@ public class Camera implements GLComponent, MouseListener {
         glLoadIdentity();
         gluPerspective(fov, aspect, near, far);
         glMatrixMode(GL_MODELVIEW);
-    }
-
-    public void setView() {
-        glLoadIdentity();
-        glRotatef(rx, 1, 0, 0);
-        glRotatef(ry, 0, 1, 0);
-        glRotatef(rz, 0, 0, 1);
-        glTranslatef(-x, -y, z);
     }
 
     private float speed1 = 0.3f;
@@ -144,20 +138,27 @@ public class Camera implements GLComponent, MouseListener {
     @Override
     public void initGL() {
         initProjection();
+        skybox.initGL();
     }
 
     @Override
     public void renderGL() {
-        setView();
+        glLoadIdentity();
+        glRotatef(rx, 1, 0, 0);
+        glRotatef(ry, 0, 1, 0);
+        glRotatef(rz, 0, 0, 1);
+        skybox.renderGL();
+        glTranslatef(-x, -y, z);
     }
 
     @Override
     public void destroyGL() {
-
+        skybox.destroyGL();
     }
 
     @Override
     public void update() {
+        skybox.update();
         if (Keyboard.isKeyDown(GLFW_KEY_W)) {
             moveForward();
         }

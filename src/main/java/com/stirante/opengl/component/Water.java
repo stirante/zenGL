@@ -9,8 +9,8 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Water implements GLComponent {
 
-    public static final double FORCE_MULTIPLIER = 0.005;
-    public static final double DAMPING = 0.99;
+    private static final double FORCE_MULTIPLIER = 0.005;
+    private static final double DAMPING = 0.99;
     private int width;
     private int height;
     private float[][] levels;
@@ -20,8 +20,7 @@ public class Water implements GLComponent {
     private float[][] targetRandoms;
     private float[][] finalMap;
     private float randomStep = 60;
-
-    private float a = 0;
+    private ArrayList<ArrayList<Vector3f>> strip;
 
     public Water(int width, int height) {
         this.width = width;
@@ -38,7 +37,7 @@ public class Water implements GLComponent {
         finalMap = new float[width][height];
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                targetRandoms[i][j] = (float) Math.random()/8f;
+                targetRandoms[i][j] = (float) Math.random() / 8f;
             }
         }
         recalculate();
@@ -50,7 +49,7 @@ public class Water implements GLComponent {
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < height; j++) {
                     randoms[i][j] = targetRandoms[i][j];
-                    targetRandoms[i][j] = (float) Math.random()/8f;
+                    targetRandoms[i][j] = (float) Math.random() / 8f;
                 }
             }
         } else {
@@ -61,22 +60,14 @@ public class Water implements GLComponent {
                 float level = levels[i][j];
                 float force = 0;
                 if (i > 0) force += FORCE_MULTIPLIER * (levels[i - 1][j] - level);
-                if (i < width-1) force += 0.005 * (levels[i + 1][j] - level);
+                if (i < width - 1) force += 0.005 * (levels[i + 1][j] - level);
                 if (j > 0) force += 0.005 * (levels[i][j - 1] - level);
-                if (j < height-1) force += 0.005 * (levels[i][j + 1] - level);
+                if (j < height - 1) force += 0.005 * (levels[i][j + 1] - level);
                 force += 0.005 * (baseLevel - level);
                 forces[i][j] = (DAMPING * forces[i][j]) + force;
                 levels[i][j] += forces[i][j];
-                finalMap[i][j] = levels[i][j] + (randoms[i][j] + ((targetRandoms[i][j] - randoms[i][j]) * (randomStep/60f)));
             }
         }
-//        for (int i = 0; i < 200; i++) {
-//            for (int j = 0; j < 200; j++) {
-//                levels[i][j] = ((float) Math.sin((i + a) / 10f) / 4f) +
-//                        ((float) Math.sin((i + a) / 5f) / 10f) +
-//                        (randoms[i][j] + ((targetRandoms[i][j] - randoms[i][j]) * (randomStep/60f)));
-//            }
-//        }
     }
 
     @Override
@@ -90,7 +81,7 @@ public class Water implements GLComponent {
 
     @Override
     public void renderGL() {
-        ArrayList<ArrayList<Vector3f>> strip = PolyUtils.toStrips(finalMap);
+        if (strip == null) return;
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glColor4f(0.22745098f, 0.65882355f, 1f, 0.5f);
@@ -119,9 +110,13 @@ public class Water implements GLComponent {
 
     @Override
     public void update() {
-        a += 0.2f;
-        if (a > 200) a = 0;
         recalculate();
         recalculate();
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                finalMap[i][j] = levels[i][j] + (randoms[i][j] + ((targetRandoms[i][j] - randoms[i][j]) * (randomStep / 60f)));
+            }
+        }
+        strip = PolyUtils.toStrips(finalMap);
     }
 }
