@@ -5,6 +5,7 @@ import com.stirante.opengl.input.Keyboard;
 import org.lwjgl.glfw.GLFW;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
 
 public class GameScreen extends Screen {
 
@@ -43,6 +44,7 @@ public class GameScreen extends Screen {
         glEnable(GL_COLOR_MATERIAL);
         glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);
+        glEnable(GL_MULTISAMPLE);
         float[] lightPosition = {0, 1, 0, 1f};
         glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
     }

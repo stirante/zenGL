@@ -56,6 +56,7 @@ public class Window {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+        glfwWindowHint(GLFW_SAMPLES, 4);
 
         handle = glfwCreateWindow(width, height, "OpenGL", NULL, NULL);//glfwGetPrimaryMonitor()
         if (handle == NULL)
