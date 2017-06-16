@@ -1,4 +1,4 @@
-![Alt text](/screenshots/screenshot2.png?raw=true "Screenshot")
+![Alt text](/screenshots/screenshot3.png?raw=true "Screenshot")
 
 # Obiektowość?
 Całość podzieliłem na obiekty. Window odpowiada za stworzenie okna. Przyjmuje on obiekty Screen. Każdy Screen może w sobie przechowywać obiekty GLComponent, posiadające podstawowe metody renderowania oraz aktualizowania. 
@@ -9,4 +9,5 @@ Całość podzieliłem na obiekty. Window odpowiada za stworzenie okna. Przyjmuj
  - Camera - Komponent stwarzający iluzję kamery, jest w nim sterowanie W/S/A/D/Q/E oraz tworzenie macierzy projekcji
  - GameScreen - Ekran, który posiada mapę
  - World - Komponent, który renderuje mapę
+ - Texture - Obiekt, zajmujący się wczytywaniem, bindowaniem oraz niszczeniem tekstur
  - SimplexNoise oraz SimplexNoiseOctave to klasy, generujące losowy teren. Nie jest mojego autorstwa.
