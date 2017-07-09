@@ -1,11 +1,13 @@
 package com.stirante.opengl.component;
 
+import com.stirante.opengl.util.CubeTexture;
 import com.stirante.opengl.util.PolyUtils;
 import com.stirante.opengl.util.Vector3f;
 
 import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_REFLECTION_MAP;
 
 public class Water implements GLComponent {
 
@@ -21,6 +23,7 @@ public class Water implements GLComponent {
     private float[][] finalMap;
     private float randomStep = 60;
     private ArrayList<ArrayList<Vector3f>> strip;
+    private CubeTexture texture;
 
     public Water(int width, int height) {
         this.width = width;
@@ -72,7 +75,7 @@ public class Water implements GLComponent {
 
     @Override
     public void initGL() {
-
+        texture = new CubeTexture("res/sky2");
     }
 
     public void setPointLevel(int x, int z, float level) {
@@ -82,9 +85,18 @@ public class Water implements GLComponent {
     @Override
     public void renderGL() {
         if (strip == null) return;
+        glEnable(GL_REFLECTION_MAP);
+        glEnable(GL_TEXTURE_GEN_S);
+        glEnable(GL_TEXTURE_GEN_T);
+        glEnable(GL_TEXTURE_GEN_R);
         glEnable(GL_BLEND);
+        texture.bind();
+        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+        glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+        glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glColor4f(0.22745098f, 0.65882355f, 1f, 0.5f);
+//        glColor4f(0.22745098f, 0.65882355f, 1f, 0.5f);
+        glColor4f(0.42745098f, 0.85882355f, 1f, 0.8f);
         glBegin(GL_TRIANGLES);
         for (int s = 0; s < strip.size(); s++) {
             for (int v = 0; v < strip.get(s).size() - 2; v++) {
@@ -99,7 +111,12 @@ public class Water implements GLComponent {
             }
         }
         glEnd();
+        texture.unbind();
         glDisable(GL_BLEND);
+        glDisable(GL_TEXTURE_GEN_S);
+        glDisable(GL_TEXTURE_GEN_T);
+        glDisable(GL_TEXTURE_GEN_R);
+        glDisable(GL_REFLECTION_MAP);
         glColor4f(1f, 1f, 1f, 1f);
     }
 
